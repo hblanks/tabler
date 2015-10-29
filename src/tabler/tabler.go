@@ -75,12 +75,15 @@ func (t *Tabler) WriteRows(tablesPath string, dsn string) error {
 	}
 	log.Printf("Tabler.WriteRows: tables=%v\n", tables)
 
+	var driverName string
 	t.mutex.Lock()
-	t.db, err = ConnectDB(dsn)
+	t.db, driverName, err = ConnectDB(dsn)
 	t.mutex.Unlock()
 	if err != nil {
 		return err
 	}
+
+	tabledef.SetSQL(tables, driverName)
 
 	err = CreateTables(t.db, tables)
 	if err != nil {

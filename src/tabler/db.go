@@ -6,24 +6,31 @@ import (
 	"log"
 	"net/url"
 
+	_ "github.com/lib/pq"
 	_ "github.com/mattn/go-sqlite3"
 
 	"tabler/rowmessage"
 	"tabler/tabledef"
 )
 
-func ConnectDB(dataSourceName string) (*sql.DB, error) {
+func ConnectDB(dataSourceName string) (*sql.DB, string, error) {
 	u, err := url.Parse(dataSourceName)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 
+	var db *sql.DB
 	switch u.Scheme {
 	case "sqlite3", "sqlite":
-		return sql.Open("sqlite3", u.Path)
+		db, err = sql.Open("sqlite3", u.Path)
+		return db, "sqlite3", err
+
+	case "postgres", "postgresql":
+		db, err = sql.Open("postgres", dataSourceName)
+		return db, "postgres", err
 
 	default:
-		return nil, fmt.Errorf("Unsupported DSN")
+		return nil, "", fmt.Errorf("Unsupported DSN")
 	}
 }
 

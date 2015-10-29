@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 
 	"tabler/rowmessage"
@@ -42,7 +43,7 @@ func getColumnDataType(ctype string) string {
 }
 
 func (t *ColumnDef) getCreateSQL() string {
-	return fmt.Sprintf("`%s` %s", t.Name, getColumnDataType(t.Ctype))
+	return fmt.Sprintf("\"%s\" %s", t.Name, getColumnDataType(t.Ctype))
 }
 
 type TableDef struct {
@@ -57,14 +58,30 @@ func (t *TableDef) GetCreateSQL() string {
 	for index, column := range t.Columns {
 		columnExprs[index] = column.getCreateSQL()
 	}
-	return fmt.Sprintf("CREATE TABLE IF NOT EXISTS `%s` (%s)",
+	return fmt.Sprintf("CREATE TABLE IF NOT EXISTS \"%s\" (%s)",
 		t.Name, strings.Join(columnExprs, ", "))
 }
 
-func (t *TableDef) setInsertSQL() {
-	t.insertSQL = fmt.Sprintf("INSERT INTO `%s` VALUES (%s)",
-		t.Name,
-		strings.Join(strings.Split(strings.Repeat("?", len(t.Columns)), ""), ", "))
+func postgresValues(count int) string {
+	values := make([]string, count)
+	for i := 0; i < count; i++ {
+		values[i] = "$" + strconv.Itoa(i+1)
+	}
+	return strings.Join(values, ", ")
+}
+
+func (t *TableDef) setInsertSQL(driverName string) error {
+	var valuesStr string
+	switch driverName {
+	case "sqlite3":
+		valuesStr = strings.Join(strings.Split(strings.Repeat("?", len(t.Columns)), ""), ", ")
+	case "postgres":
+		valuesStr = postgresValues(len(t.Columns))
+	default:
+		return fmt.Errorf("TableDef.setInsertSQL: unsupported driver=%s", driverName)
+	}
+	t.insertSQL = fmt.Sprintf("INSERT INTO \"%s\" VALUES (%s)", t.Name, valuesStr)
+	return nil
 }
 
 func (t *TableDef) Insert(db *sql.DB, row rowmessage.RowMessage) error {
@@ -104,9 +121,19 @@ func ReadTablesJSON(path string) (TableDefs, error) {
 		if table.Name == "" {
 			table.Name = name
 		}
+	}
+
+	return tables, nil
+}
+
+func SetSQL(tables TableDefs, driverName string) error {
+	for _, table := range tables {
 		if !table.Ignore {
-			table.setInsertSQL()
+			err := table.setInsertSQL(driverName)
+			if err != nil {
+				return err
+			}
 		}
 	}
-	return tables, nil
+	return nil
 }
