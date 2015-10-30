@@ -11,7 +11,7 @@ import (
 	"tabler/rowmessage"
 )
 
-const MaxJSONLength = 1024 * 10
+const MaxJSONLength = 1024 * 1024
 
 const (
 	ColumnFloatType   = "float"
