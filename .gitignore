@@ -1,0 +1,5 @@
+bin/
+pkg/
+env.sh
+.AppleDouble
+.DS_Store
