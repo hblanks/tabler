@@ -1,0 +1,37 @@
+{
+	"version": 0,
+	"dependencies": [
+		{
+			"importpath": "github.com/gogo/protobuf",
+			"repository": "https://github.com/gogo/protobuf",
+			"revision": "64f27bf06efee53589314a6e5a4af34cdd85adf6",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/gogo/protobuf/proto/testdata",
+			"repository": "https://github.com/gogo/protobuf",
+			"revision": "64f27bf06efee53589314a6e5a4af34cdd85adf6",
+			"branch": "master",
+			"path": "/proto/testdata"
+		},
+		{
+			"importpath": "github.com/golang/protobuf",
+			"repository": "https://github.com/golang/protobuf",
+			"revision": "ab974be44dc3b7b8a1fb306fb32fe9b9f3864b3d",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/golang/protobuf/proto/testdata",
+			"repository": "https://github.com/golang/protobuf",
+			"revision": "ab974be44dc3b7b8a1fb306fb32fe9b9f3864b3d",
+			"branch": "master",
+			"path": "/proto/testdata"
+		},
+		{
+			"importpath": "github.com/mattn/go-sqlite3",
+			"repository": "https://github.com/mattn/go-sqlite3",
+			"revision": "b4142c444a8941d0d92b0b7103a24df9cd815e42",
+			"branch": "master"
+		}
+	]
+}
